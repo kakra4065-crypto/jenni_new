@@ -1,0 +1,8 @@
+models/
+admin_uploaded_txt/
+__pycache__/
+*.pyc
+.env
+instance/
+*.sqlite*
+venv/
