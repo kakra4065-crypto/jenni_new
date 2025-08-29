@@ -1,0 +1,571 @@
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Divine Brain Lotto Forecast Centre</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+<style>
+html { box-sizing:border-box; }
+*,*:before,*:after { box-sizing:inherit; }
+body { margin:0; padding:0; min-height:100vh; overflow-x:hidden;
+font-family:"Segoe UI",sans-serif; background: url("{{ url_for('static', filename='db_lotto_hall.png') }}") center/cover no-repeat fixed;
+animation: sparkle 7s linear infinite, pulseGlow 4s ease-in-out infinite alternate; color:#eef;
+}
+@keyframes sparkle { 0%{background-position:0% 0%;} 50%{background-position:100% 100%;} 100%{background-position:0% 0%;} }
+@keyframes pulseGlow { from{filter:brightness(1) contrast(1.09);} to{filter:brightness(1.19) contrast(1.16) saturate(1.08);} }
+#splash {position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.72);
+display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:9999;
+animation: fadeOut 1.5s ease-out 2.9s forwards;}
+@keyframes fadeOut { to{opacity:0; visibility:hidden;} }
+#splash img {width:170px; animation: popIn 1s ease-out;}
+@keyframes popIn { from{transform:scale(0.1);} to{transform:scale(1);} }
+#splash .welcome-text {margin-top:1.6rem; font-size:1.6rem; color:#fff;
+animation: popIn 1s ease-out 0.7s forwards; opacity:0;}
+#main-content { display:none; }
+header { display:flex; align-items:center; justify-content:space-between;
+padding:1.3rem 2.3rem; background: rgba(0,0,0,0.61); border-bottom:1.5px solid #00335c7a;}
+header img { height:75px; }
+header h1 { font-size:2rem; margin:0 0 0 8px; color:#fff;
+text-transform:uppercase; letter-spacing:1.5px; font-weight:700;
+text-shadow: 1px 2px 8px #123e7e44;
+}
+.contact { text-align:right; font-size:0.97rem; }
+.contact a { color:#9feef7; text-decoration:none; margin-right:12px; }
+.nav-btns { display:flex; align-items:center; gap:11px;}
+.nav-btns a {
+display:inline-block; padding:8px 18px; border-radius:6px;
+background:linear-gradient(91deg,#ffd700 70%,#fa5d41 110%);
+color:#222; font-weight:bold; font-size:1.01em; margin-left:8px;
+border:none; box-shadow:0 2px 11px #ffde0081, 0 0 9px #fff4;
+text-decoration:none; transition:background .2s, color .2s;
+cursor:pointer; letter-spacing:.7px;
+}
+.nav-btns a.admin { background:linear-gradient(88deg,#00ced1 60%,#1a49b8 120%);
+color:#fff;}
+.nav-btns a:hover { background:#ffd800; color:#0a1432; }
+.nav-btns a.admin:hover { background:#1a49b8; color:#ffd800;}
+@media (max-width:600px) {
+header { flex-direction:column; align-items:stretch; gap:10px; padding:0.7rem 1.2rem;}
+header img { height:55px; }
+header h1 { font-size:1.21rem; }
+.nav-btns a { padding:8px 10px; font-size:0.96em;}
+}
+main { max-width:860px; margin:2.6rem auto; padding:2.2rem; background: rgba(0,0,0,0.56);
+border-radius:13px; box-shadow:0 0 30px rgba(0,0,0,0.88); backdrop-filter: blur(4px);}
+form { display:flex; justify-content:center; margin-bottom:2rem; flex-wrap:wrap;}
+label { margin-right:0.5rem; color:#dde; font-size:1.04em;}
+select { appearance:none; -webkit-appearance:none; background: rgba(255,255,255,0.11); color:#eef;
+font-size:1.04rem; padding:0.6rem 1.3rem; border:1.2px solid rgba(255,255,255,0.35);
+border-radius:6px; min-width:180px; cursor:pointer; transition: background .3s, border-color .3s; }
+select:hover, select:focus { background: rgba(255,255,255,0.22); border-color:#ffd700; outline:none; }
+select option { background:#233; color:#eee; }
+button { font-size:1.03rem; padding:.66rem 1.22rem; margin-left:1.15rem; border:none; border-radius:7px;
+background:#ffd700; color:#000; font-weight:bold; box-shadow:0 0 10px rgba(255,215,0,0.58);
+cursor:pointer; transition: transform .2s; }
+button:hover { transform: translateY(-2px) scale(1.04);}
+h2 { text-align:center; font-size:2rem; margin-top:2.1rem; color:#ffd700;
+text-shadow:1px 2px 4px rgba(0,0,0,0.75); }
+.info-board { text-align:center; margin-bottom:1.1rem; color:#dde; }
+.info-board span { display:inline-block; margin:0 .56rem; padding:.33rem .91rem;
+background: rgba(255,255,255,0.13); border-radius:5px; transition: background .3s; }
+.info-board span:hover { background: rgba(255,255,255,0.22); }
+.shared, .topX, .top2 { display:flex; justify-content:center; flex-wrap:wrap; margin:1.2rem 0; }
+.shared div, .topX div {
+background:#ffd700; color:#000; font-weight:bold;
+width:77px; height:77px; display:flex; justify-content:center; align-items:center;
+border-radius:8px; font-size:1.5rem; margin:.57rem;
+box-shadow:2px 2px 10px rgba(0,0,0,0.67); transition: transform .2s;
+}
+.shared div:hover, .topX div:hover { transform: scale(1.11); }
+.top2 .two-sure-anim {
+font-weight: bold;
+background:#00ced1;
+color:#000;
+width:90px; height:90px;
+display:flex; justify-content:center; align-items:center;
+border-radius:50%;
+font-size:2rem; margin:.6rem;
+box-shadow: 0 0 40px #00eaff, 0 0 12px #fff, 0 0 32px #ffd90088;
+animation: burnTwist 2s cubic-bezier(.5,1.3,.3,1.2) infinite alternate;
+text-shadow: 0 0 16px #fff, 0 0 32px #ffc80077;
+}
+.banker.banker-anim {
+font-weight: bold;
+text-align:center; font-size:2.3rem; margin-top:1rem;
+color:#ffa500;
+text-shadow:2px 2px 4px #000, 0 0 24px #fff, 0 0 60px #ff6b0088;
+box-shadow: 0 0 40px #ffa50099, 0 0 80px #fff688;
+animation: burnTwist 2.8s cubic-bezier(.5,1.3,.3,1.2) infinite alternate;
+filter: brightness(1.15) drop-shadow(0 0 24px #ff9100cc);
+}
+@keyframes burnTwist {
+0%   { transform: rotate(-12deg) scale(1.03); filter: brightness(1.10) hue-rotate(-8deg); }
+20%  { transform: rotate(8deg) scale(1.12) skewY(-3deg); filter: brightness(1.35) drop-shadow(0 0 32px #fff688);}
+35%  { transform: rotate(-2deg) scale(0.96) skewX(5deg);}
+60%  { transform: rotate(4deg) scale(1.08) skewY(4deg);}
+85%  { transform: rotate(-8deg) scale(1.15);}
+100% { transform: rotate(6deg) scale(1.03);}
+}
+.topX .top14-anim {
+animation: top14BounceIn 0.8s cubic-bezier(.5,1.5,.5,1) backwards;
+transition: transform .7s cubic-bezier(.6,.3,.7,1.7);
+will-change: transform;
+}
+@keyframes top14BounceIn {
+0%   { transform: translateY(-90px) scale(0.3); opacity:0;}
+80%  { transform: translateY(12px) scale(1.05);}
+100% { transform: translateY(0) scale(1); opacity:1;}
+}
+#historyOverlay {
+position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:5000;
+display:none; flex-direction:column; align-items:center; overflow-y:auto;
+justify-content:center;
+color:#fff;
+text-shadow: 0 0 8px #133e91, 0 0 16px #35559a66;
+padding:2rem; box-sizing:border-box;
+}
+#historyOverlay .closeHint {
+color:#ccc;font-size:.9rem;margin-top:1rem;text-align:center;
+}
+#historyOverlayBG {
+position:absolute;top:0;left:0;width:100%;height:100%;z-index:-1;object-fit:cover;
+opacity:0.34;pointer-events:none;
+}
+#historyOverlay .historyContent {
+position:relative;z-index:2;max-width:93vw;
+background:rgba(5,7,21,0.86);border-radius:18px;padding:2rem 1.2rem 1.5rem 1.2rem;
+box-shadow:0 0 32px #111a;
+}
+.historyContent h2 {
+color:#1a49b8;
+text-shadow: 0 0 8px #fff, 0 0 22px #05153999;
+}
+.historyContent .match {
+color:#1de396;
+font-weight:bold;
+font-size:1.18em;
+text-shadow: 0 0 10px #000, 0 0 12px #0e6f1a88;
+}
+.historyContent .empty {
+color:#ccc;font-style:italic;text-align:center;
+}
+#date-bar {
+text-align:center;
+margin-top:1.2rem;
+margin-bottom:-1.5rem;
+font-size:1.14rem;
+color:#0d3db9;
+font-weight:bold;
+letter-spacing:1.2px;
+text-shadow:1px 1px 5px #0d3db944;
+}
+#match-popup {
+display:none;
+position:fixed;
+left:50%; bottom:62px; transform:translateX(-50%);
+background: linear-gradient(92deg, #13a5ff 70%, #ffa500 100%);
+color:#fff;
+border: 2px solid #ffd700;
+border-radius:14px;
+box-shadow: 0 0 30px #1fc8ffcc, 0 0 11px #ffd90077;
+font-weight:bold;
+font-size:1.18rem;
+z-index:50001;
+min-width: 210px;
+max-width: 96vw;
+padding:15px 27px 13px 27px;
+animation: popupBlink 1.07s infinite alternate;
+text-align:center;
+pointer-events: all;
+cursor:pointer;
+}
+@media (max-width:600px) {
+#match-popup { font-size:1.01rem; min-width:140px; padding:10px 6vw;}
+}
+@keyframes popupBlink {
+from { filter: brightness(1.0); opacity:0.30;}
+to   { filter: brightness(1.22); opacity:1;}
+}
+#ad-overlay {
+position: fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.98);
+z-index: 120000; display: none; justify-content:center; align-items:center; flex-direction:column;
+animation: fadeInAd 0.7s;
+}
+@keyframes fadeInAd { from {opacity:0;} to {opacity:1;} }
+#ad-overlay video, #ad-overlay img {
+max-width:94vw; max-height:77vh; border-radius:18px; box-shadow:0 0 48px #111c;
+background: #000;
+display: block;
+margin: 0 auto;
+}
+#ad-logo {
+position:absolute; left:16px; bottom:26px; width:79px; opacity:0.92; z-index:3;
+filter:drop-shadow(0 0 14px #ffe)
+}
+#ad-overlay .ad-close-hint {
+color:#ffe; font-size:1.07em; text-align:center; margin-top:20px; opacity:0.85;
+}
+@media (max-width:600px) {
+#ad-logo { width:44px; left:6px; bottom:7px;}
+#ad-overlay .ad-close-hint { font-size:.97em;}
+}
+#credits-bar {
+width:100vw; position:fixed; left:0; bottom:0; z-index:60000;
+height:44px; background:rgba(4,18,38,0.93);
+overflow:hidden; display:flex;align-items:center;
+}
+#credits-slide {
+display:inline-block;white-space:nowrap;
+color:#e9f3ff;font-size:1.13rem;font-family:Georgia,serif;
+font-weight:bold;
+letter-spacing:1.3px;
+text-shadow:0 0 6px #132a60bb, 0 0 20px #fff2;
+}
+footer { text-align:center; padding:1.1rem; font-size:.97rem; background: rgba(0,0,0,0.62); color:#ccc; margin-bottom:54px;}
+a { color:#abe; text-decoration:none; }
+</style>
+<script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+</head>
+<body>
+<div id="splash">
+<img src="{{ url_for('static', filename='db_lotto_hall.png') }}" alt="Logo">
+<div class="welcome-text">Welcome to Divine Brain Lotto Forecast Centre</div>
+</div>
+<div id="main-content">
+<header>
+<img src="{{ url_for('static', filename='db_lotto_hall.png') }}" alt="Logo">
+<h1>Divine Brain Lotto Forecast</h1>
+<div class="nav-btns">
+{% if is_admin %}
+<a class="admin" href="{{ url_for('admin') }}">Admin</a>
+{% endif %}
+<a href="{{ url_for('logout') }}">Logout</a>
+</div>
+<div class="contact">
+<span>Call/WhatsApp: <a href="tel:+233243638607">+233 24 363 8607</a></span><br>
+<a href="https://www.facebook.com/dblotto" target="_blank">
+<img src="{{ url_for('static', filename='facebook.png') }}" alt="Facebook" style="height:18px;vertical-align:middle;"> Facebook
+</a>
+<a href="https://wa.me/233243638607" target="_blank">
+<img src="{{ url_for('static', filename='whatsapp.png') }}" alt="WhatsApp" style="height:18px;vertical-align:middle;"> WhatsApp
+</a>
+</div>
+</header>
+<div id="date-bar"></div>
+<div id="match-popup"></div>
+<main>
+<form method="post">
+<label for="file">Select draw file:</label>
+<select id="file" name="file">
+{% for f in files %}<option>{{ f }}</option>{% endfor %}
+</select>
+<button type="submit">Run Predictions</button>
+</form>
+{% if results %}
+{% if results %}
+<!-- ...your shared/topX/top2/banker markup... -->
+<script>
+speechSynthesis.speak(
+new SpeechSynthesisUtterance(
+"Your predictions are ready for {{ filename }}, event {{ event }}"
+)
+);
+</script>
+{% endif %}
+
+<div class="info-board">
+<span><strong>File:</strong> {{ filename }}</span>
+<span><strong>Event:</strong> {{ event }}</span>
+</div>
+<h2>Shared Predictions</h2>
+<div class="shared">{% for n in results.shared %}<div>{{ n }}</div>{% endfor %}</div>
+<h2>{{ results.top_label }}</h2>
+<div class="topX" id="top14predictions">
+{% for n in results.topX %}
+<div class="top14-anim">{{ n }}</div>
+{% endfor %}
+</div>
+<h2>Two Sure</h2>
+<div class="top2">
+{% for n in results.top2 %}
+<div class="two-sure-anim">{{ n }}</div>
+{% endfor %}
+</div>
+<div class="banker banker-anim">💰 Banker: {{ results.banker }}</div>
+<div style="text-align:center; margin-top:20px;">
+<button onclick="showHistory()">View Last 20 Historical Matches</button>
+</div>
+{% endif %}
+</main>
+{% if results %}
+<script>
+// speak once your predictions are rendered:
+const runMsg = `Your predictions are ready for {{ filename }} event {{ event }}`;
+window.speechSynthesis.speak(
+new SpeechSynthesisUtterance(runMsg)
+);
+</script>
+{% endif %}
+
+<footer>
+&copy; 2025 Divine Brain Lotto Forecast Centre
+</footer>
+</div>
+<div id="credits-bar"><span id="credits-slide">{{ credits[0] }}</span></div>
+
+<!-- =============== ADVERT OVERLAY ================ -->
+<div id="ad-overlay">
+<video id="ad-video" src="" style="display:none;" controls autoplay playsinline></video>
+<img id="ad-image" src="" style="display:none;" alt="Ad">
+<img id="ad-logo" src="{{ url_for('static', filename='db_lotto_hall.png') }}" alt="Logo">
+<div class="ad-close-hint">Tap/click anywhere to close advert.</div>
+</div>
+
+<!-- ============= Last 20 overlay (video/image bg handled in script) ========== -->
+<div id="historyOverlay">
+<div id="historyOverlayBG"></div>
+<div class="historyContent">
+<h2>Last 20 Historical Matches</h2>
+{% if results and results.history %}
+{% for m in results.history %}
+<div class="match">{{ m }}</div>
+{% endfor %}
+{% else %}
+<div class="empty">No matches found in last 20 events.</div>
+{% endif %}
+<div class="closeHint">(overlay closes automatically or tap outside to close)</div>
+</div>
+</div>
+<script>
+// Splash/welcome
+window.addEventListener('load', () => {
+speechSynthesis.speak(new SpeechSynthesisUtterance("Welcome to Divine Brain Lotto Forecast Centre"));
+setTimeout(()=>{
+document.getElementById('splash').style.display='none';
+document.getElementById('main-content').style.display='block';
+setTimeout(showAdOverlay, 5200); // Run adverts after splash and match
+},3600);
+});
+
+// Date bar using real online time
+fetch("https://worldtimeapi.org/api/ip")
+.then(r => r.json())
+.then(data => {
+let d = new Date(data.datetime);
+document.getElementById('date-bar').textContent =
+"Today is: " + d.toLocaleDateString(undefined, {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+})
+.catch(() => {
+let d = new Date();
+document.getElementById('date-bar').textContent =
+"Today is: " + d.toLocaleDateString(undefined, {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+});
+
+// Top 14 shuffle animation every 5 seconds
+function shuffleTop14() {
+const container = document.getElementById('top14predictions');
+if (!container) return;
+const children = Array.from(container.children);
+if (children.length < 2) return;
+for (let i = children.length - 1; i > 0; i--) {
+let j = Math.floor(Math.random() * (i + 1));
+[children[i], children[j]] = [children[j], children[i]];
+}
+children.forEach(child => {
+child.classList.remove('top14-anim');
+void child.offsetWidth;
+child.classList.add('top14-anim');
+});
+container.innerHTML = '';
+children.forEach(c => container.appendChild(c));
+}
+setInterval(shuffleTop14, 5500);
+
+// History overlay logic
+function showHistory() {
+var h = document.getElementById('historyOverlay');
+h.style.display = 'flex';
+startHistoryBg();
+setTimeout(function() {
+h.style.display = 'none';
+stopHistoryBg();
+}, 42000);
+}
+document.getElementById('historyOverlay').addEventListener('click', function(e){
+if (e.target === this) {
+this.style.display = 'none';
+stopHistoryBg();
+}
+});
+
+// Credits scroll: dynamically animate FULL length so nothing is cut
+window.addEventListener('DOMContentLoaded', function() {
+const slide = document.getElementById('credits-slide');
+const bar = document.getElementById('credits-bar');
+if (!slide) return;
+function scrollCredits() {
+slide.style.transition = 'none';
+slide.style.transform = 'translateX(0)';
+setTimeout(function() {
+const textWidth = slide.offsetWidth;
+const barWidth = bar.offsetWidth;
+let duration = Math.max((textWidth + barWidth) / 40, 22);
+slide.style.transition = `transform ${duration}s linear`;
+slide.style.transform = `translateX(-${textWidth + 40}px)`;
+setTimeout(scrollCredits, duration*1000 + 500);
+}, 600);
+}
+scrollCredits();
+});
+
+// Popup match notification (bottom, touch to close, 10s)
+{% if match_msgs %}
+let popupText = `{% for m in match_msgs %}{{ m|escape }}\n{% endfor %}`.trim();
+let popCount = 0, popMax = 1;
+function showPopupMatch() {
+let p = document.getElementById('match-popup');
+p.textContent = popupText;
+p.style.display = 'block';
+popCount++;
+p.onclick = function(){p.style.display='none';};
+if(popCount < popMax) setTimeout(showPopupMatch, 10000);
+else setTimeout(()=>{ p.style.display='none'; },10000);
+}
+setTimeout(showPopupMatch, 1800);
+{% endif %}
+
+// === Adverts logic ===
+const adOverlay = document.getElementById('ad-overlay');
+const adVideo   = document.getElementById('ad-video');
+const adImage   = document.getElementById('ad-image');
+const adLogo    = document.getElementById('ad-logo');
+let adImages = [], adCurrent = 0, adTimer = null, adShowed = false;
+
+function showAdOverlay() {
+if (adShowed) return;
+adShowed = true;
+fetch("{{ url_for('static', filename='video.advirt.mp4') }}", {method:'HEAD'})
+.then(r => {
+if (r.ok) showVideoAd("{{ url_for('static', filename='video.advirt.mp4') }}");
+else fetchAdImages();
+})
+.catch(fetchAdImages);
+}
+
+function showVideoAd(src) {
+adImage.style.display = 'none';
+adVideo.style.display = 'block';
+adVideo.src = src;
+adOverlay.style.display = 'flex';
+adLogo.style.display = 'block';
+adVideo.currentTime = 0;
+adVideo.play();
+adVideo.onended = hideAdOverlay;
+}
+
+function fetchAdImages() {
+// Try to get list of images from a manifest
+fetch("{{ url_for('static', filename='images.advirt/manifest.json') }}")
+.then(r => r.json())
+.then(list => {
+adImages = list;
+if (adImages.length) showImageAd();
+})
+.catch(() => { // fallback: try some default names
+adImages = [];
+for (let i=1;i<=8;i++) adImages.push("{{ url_for('static', filename='images.advirt/') }}" + i + ".jpg");
+showImageAd();
+});
+}
+
+function showImageAd() {
+adOverlay.style.display = 'flex';
+adLogo.style.display = 'block';
+adImage.style.display = 'block';
+adVideo.style.display = 'none';
+adCurrent = 0;
+showNextAdImage();
+adTimer = setInterval(showNextAdImage, 4000);
+}
+function showNextAdImage() {
+if (!adImages.length) return;
+adImage.src = adImages[adCurrent % adImages.length];
+adCurrent++;
+}
+function hideAdOverlay() {
+adOverlay.style.display = 'none';
+adVideo.pause();
+adVideo.src = "";
+clearInterval(adTimer);
+}
+// Tap/click closes ad
+adOverlay.onclick = hideAdOverlay;
+
+// Show ad again after inactivity (20min = 1200000ms)
+let lastActive = Date.now();
+['mousemove','keydown','touchstart'].forEach(e=>{
+document.addEventListener(e,()=>{lastActive=Date.now();});
+});
+setInterval(()=>{
+if(Date.now()-lastActive > 1200000) {
+adShowed=false; showAdOverlay();
+lastActive = Date.now();
+}
+}, 45000);
+
+// ========== History overlay bg slideshow/video ==========
+let historyBgTimer, historyBgType, histBgEl=document.getElementById('historyOverlayBG');
+function startHistoryBg(){
+fetch("{{ url_for('static', filename='video.advirt.mp4') }}", {method:'HEAD'})
+.then(r=>{ if(r.ok) showHistVideo(); else showHistImages(); })
+.catch(showHistImages);
+}
+function showHistVideo() {
+histBgEl.innerHTML = `<video src="{{ url_for('static', filename='video.advirt.mp4') }}" autoplay loop muted playsinline style="width:100%;height:100%;object-fit:cover;border-radius:0;"></video>`;
+}
+function showHistImages() {
+let imgs = [];
+fetch("{{ url_for('static', filename='images.advirt/manifest.json') }}")
+.then(r => r.json())
+.then(list => { imgs=list; doHistImg(imgs); })
+.catch(()=>{for(let i=1;i<=8;i++)imgs.push("{{ url_for('static', filename='images.advirt/') }}"+i+".jpg");doHistImg(imgs);});
+}
+function doHistImg(imgs){
+let idx=0;
+if(!imgs.length) return;
+histBgEl.innerHTML = `<img src="${imgs[0]}" style="width:100%;height:100%;object-fit:cover;border-radius:0;">`;
+historyBgTimer = setInterval(()=>{
+idx = (idx+1)%imgs.length;
+histBgEl.innerHTML = `<img src="${imgs[idx]}" style="width:100%;height:100%;object-fit:cover;border-radius:0;">`;
+},4200);
+}
+function stopHistoryBg(){
+histBgEl.innerHTML = "";
+clearInterval(historyBgTimer);
+}
+</script>
+<script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+<script>
+  const socket = io();
+  socket.on('connect', () => {
+    // tell the server which user-room to join
+    socket.emit('join', { user_id: {{ user.id }} });
+  });
+  // whenever a new_message comes in, pop up an alert
+  socket.on('new_message', data => {
+    alert(`?? New message from ${data.from_phone}:\n\n${data.content}`);
+  });
+</script>
+<script>
+  const socket = io();
+  socket.on("connect", () => {
+    socket.emit("join", { user_id: {{ user.id }} });
+  });
+  socket.on("new_message", data => {
+    alert(`?? New message from ${data.from_phone}:\n\n${data.content}`);
+  });
+</script>
+</body>
+</html>
+'''
+
